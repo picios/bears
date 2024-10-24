@@ -64,7 +64,7 @@ async function prepare_input(buf) {
 }
 
 async function run_model(input) {
-    const model = await ort.InferenceSession.create("front/yolov8m.onnx");
+    const model = await ort.InferenceSession.create("yolov8m.onnx");
     input = new ort.Tensor(Float32Array.from(input), [1, 3, imgSize, imgSize]);
     const outputs = await model.run({ images: input });
     //console.log(outputs);

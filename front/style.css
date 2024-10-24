@@ -1,0 +1,31 @@
+canvas {
+    display: block;
+    border: 3px solid black;
+    margin-top: 10px;
+}
+
+.logo-link img {
+    width: 200px;
+}
+
+#labels-ct .prediction img {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+#predicted-image img {
+    max-width: 100%;
+}
+
+#predicted-image {
+    min-height: 200px;
+}
+
+#labels-ct .label-x .label,
+#labels-ct .accu .label {
+    font-size: smaller;
+}
+
+.info-col .tab-pane {
+    padding-top: 1rem;
+}

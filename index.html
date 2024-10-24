@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MI v1.0 - Katmai Bears Detection</title>
+    <link rel="icon" type="image/x-icon" href="/front/favicon.ico">
+
+    <link href="/front/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/front/style.css" rel="stylesheet">
+    <script src="/front/bootstrap/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <a href="/" class="logo-link">
+                    <img src="/front/logo.png" />
+                </a>
+            </div>
+        </div>
+        <div class="row">
+ 
+            <div class="col-sm-9"> 
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <h4 class="mt-4 mb-4">
+                                Upload the Brooks River bear image
+                            </h4>
+                            <div class="image-ct">
+                                <input id="uploadInput" type="file" class="form-control mt4 mb-4" />
+                                <div id="predicted-image" class="mt-3 bg-light text-center">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <h4 class="mt-4 mb-4">
+                               Predictions
+                            </h4>
+                            <div id="labels-ct">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+
+
+            <div class="col-sm-3 info-col">
+                <nav>
+                    <div class="nav nav-tabs" id="v-pills-tab" role="tablist"
+                        aria-orientation="vertical">
+                        <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill"
+                            data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home"
+                            aria-selected="true">Info</button>
+                        <button class="nav-link" id="v-pills-profile-tab" data-bs-toggle="pill"
+                            data-bs-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile"
+                            aria-selected="false">Sources</button>
+                        <button class="nav-link" id="v-pills-messages-tab" data-bs-toggle="pill"
+                            data-bs-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages"
+                            aria-selected="false">More</button>
+                        <button class="nav-link" id="v-pills-settings-tab" data-bs-toggle="pill"
+                            data-bs-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings"
+                            aria-selected="false">Author</button>
+                    </div>
+                    <div class="tab-content" id="v-pills-tabContent">
+                        <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel"
+                            aria-labelledby="v-pills-home-tab">
+                            <p>
+                                MI is an experimental Katmai Bears Recognition Model
+                            </p>
+                            <p>
+                                This model has been trained to recognize the following bears IDs:
+                            </p>
+                            <ul id="trained-classes">
+
+                            </ul>
+                            <p>
+                                Model version: <span id="model-version"></span>
+                            </p>
+                            <p>
+                                Approach: <span id="approach"></span>
+                            </p>
+                        </div>
+                        <div class="tab-pane fade" id="v-pills-profile" role="tabpanel"
+                            aria-labelledby="v-pills-profile-tab">
+                            <ul class="nav flex-column">
+                                <li>
+                                    Data sources
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link"
+                                        href="https://katmai-bearcams.fandom.com/wiki/Katmai_Bearcams_Wiki">
+                                        Katmai Bearcams Wiki
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="https://www.youtube.com/watch?v=d1YoGAxmZtE">
+                                        Youtube Explore Cameras
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="https://explore.org/livecams/brown-bears">
+                                        Brooks Falls Brown Bears [Comments]
+                                    </a>
+                                </li>
+                                <li>
+                                    Code sources
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="https://developer.ibm.com/tutorials/awb-train-yolo-object-detection-model-in-python/">
+                                        https://developer.ibm.com/tutorials/awb-train-yolo-object-detection-model-in-python/
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link" href="https://github.com/AndreyGermanov/yolov8_onnx_nodejs">
+                                        https://github.com/AndreyGermanov/yolov8_onnx_nodejs
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-pane fade" id="v-pills-messages" role="tabpanel"
+                            aria-labelledby="v-pills-messages-tab">
+                            <p>
+                                The neural network has been trained on the dataset of about 400 images of Brooks River bears. This resulted a YOLOv8 <a href="/front/yolov8m.onnx">model</a> file, which can be used to recognize bears.
+                            </p>
+                            <p>
+                                It has nothing to do with intelligence. It still can see a bear in a picture of a bread loaf.
+                            </p>
+                            <p>
+                                There's still much to do.
+                            </p>
+                            <p>
+                                And remember! It's only for fun and it should not be used for proffesional purposes.
+                            </p>
+                        </div>
+                        <div class="tab-pane fade" id="v-pills-settings" role="tabpanel"
+                            aria-labelledby="v-pills-settings-tab">
+                            <p>
+                                <a href="https://github.com/picios" target="_blank">picios</a>
+                            </p>
+                            <p>
+                                aka @PeterS from YT Chat
+                            </p>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!--
+    <footer class="container-fluid fixed-bottom">
+        <p>2024 by <a href="https://github.com/picios">picios on <i class="bi bi-github"></i> Github</a></p>
+    </footer>
+    -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        /**
+         * "Upload" button onClick handler: uploads selected image file
+         * to backend, receives array of detected objects
+         * and draws them on top of image
+         */
+        const input = document.getElementById("uploadInput");
+        input.addEventListener("change", async (event) => {
+            const data = new FormData();
+            data.append("image_file", event.target.files[0], "image_file");
+            showWaiter();
+            const response = await fetch("/detect", {
+                method: "post",
+                body: data
+            });
+            const boxes = await response.json();
+            //console.log(boxes);
+            clearBoxes();
+            if (boxes.length === 0) {
+                adNoPrediction(event.target.files[0]);
+            } else {
+                draw_image_and_boxes(event.target.files[0], boxes);
+            }
+        });
+
+        window.addEventListener("load", async (event) => {
+            const response = await fetch("/info", {
+                method: "get"
+            });
+            const info = await response.json();
+            const classes = info.classes;
+            const classesBox = document.getElementById('trained-classes');
+            for (let className of classes) {
+                let li = document.createElement('li');
+                li.innerHTML = className;
+                classesBox.appendChild(li);
+            }
+
+            document.getElementById("model-version").innerHTML = info.version;
+            document.getElementById("approach").innerHTML = info.approach;
+        });
+
+        /**
+         * Function draws the image from provided file
+         * and bounding boxes of detected objects on
+         * top of the image
+         * @param file Uploaded file object
+         * @param boxes Array of bounding boxes in format [[x1,y1,x2,y2,object_type,probability],...]
+         */
+        function draw_image_and_boxes(file, boxes) {
+            
+            const img = new Image()
+            img.src = URL.createObjectURL(file);
+            const predictedImageBox = document.getElementById('predicted-image');
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                ctx.strokeStyle = "#00FF00";
+                ctx.lineWidth = 3;
+                //ctx.font = "18px serif";
+                boxes.forEach(([x1, y1, x2, y2, label, accu]) => {
+                    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+                    adPrediction(img, {x1: x1, y1: y1, x2: x2, y2: y2}, label, accu);
+                });
+                let predictedImage = document.createElement("img");
+                predictedImage.setAttribute('src', canvas.toDataURL('image/jpeg'));
+                predictedImageBox.appendChild(predictedImage);
+            }
+        }
+
+        function copyCropped(image, rect) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = rect.x2 - rect.x1;
+            canvas.height = rect.y2 - rect.y1;;
+            context.drawImage(image, rect.x1, rect.y1, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg');
+        }
+
+        function adPrediction(img, rect, label, accu) {
+            const labelsCt = document.getElementById("labels-ct");
+
+            let image = document.createElement('img');
+            url = copyCropped(img, rect);
+            image.setAttribute("src", url);
+
+            let prediction = document.createElement('div');
+            prediction.className = 'alert alert-warning prediction';
+
+            let labelBox = document.createElement('div');
+            labelBox.className = 'label-x';
+            labelBox.innerHTML = '<span class="text-muted text-uppercase fw-lighter label">Bear ID:</span> <span class="fw-bold value">' + label + '</span>';
+            
+            let accuBox = document.createElement('div');
+            accuBox.className = 'accu';
+            accuBox.innerHTML = '<span class="text-muted text-uppercase fw-lighter label">Accuracy:</span> <span class="fw-bold value">' + accu.toFixed(2) + '</span>';
+
+            prediction.appendChild(image);
+            prediction.appendChild(labelBox);
+            prediction.appendChild(accuBox);
+            
+            labelsCt.appendChild(prediction);
+        }
+
+        function adNoPrediction(file) {
+            const src = URL.createObjectURL(file);
+            let image = document.createElement('img');
+            image.setAttribute("src", src);
+            const predictedImageBox = document.getElementById('predicted-image');
+            predictedImageBox.appendChild(image);
+
+            const labelsCt = document.getElementById("labels-ct");
+            
+            let labelBox = document.createElement('div');
+            labelBox.className = 'label no-prediction';
+            labelBox.innerHTML = 'No prediction found. Sorry';
+
+            let prediction = document.createElement('div');
+            prediction.className = 'alert alert-danger';
+            prediction.appendChild(labelBox);
+
+            labelsCt.appendChild(prediction);
+        }
+
+        function showWaiter() {
+            const waiter = document.createElement('div');
+            waiter.innerHTML = '<div class="alert">Loading... Please wait</div>';
+            const imageBox = document.getElementById("predicted-image");
+            imageBox.innerHTML = "";
+            imageBox.appendChild(waiter)
+        }
+
+        function clearBoxes() {
+            const imageBox = document.getElementById("predicted-image");
+            imageBox.innerHTML = "";
+
+            const labelsCt = document.getElementById("labels-ct");
+            labelsCt.innerHTML = "";
+        }
+    </script>
+</body>
+
+</html>

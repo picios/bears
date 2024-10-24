@@ -4,7 +4,7 @@ This is an experimental Katmai Bears Recognition system based on YOLOv8 trained 
 
 ## Install
 
-* Clone this repository: `git clone git@github.com:picios/bears.git`
+* Clone this repository: `git clone https://github.com/picios/bears.git`
 * Go to the bears directory: `cd bears`
 * Install dependencies `npm install`
 

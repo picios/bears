@@ -73,9 +73,8 @@ async function prepare_input(buf) {
 }
 
 async function load_model() {
-    await sleep(5);
+    //await sleep(5);
     model = await ort.InferenceSession.create("yolov8m.onnx");
-    
 }
 
 async function run_model(input) {

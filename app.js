@@ -6,8 +6,12 @@ const fs = require("fs");
 var path = require('path');
 const imgSize = 512;
 const outputMultiplier = 5376;
+var model = null;
+
+const sleep = (time) => new Promise((resolve) => setTimeout(resolve, Math.ceil(time * 1000)))
 
 function main() {
+
     const app = express();
     const upload = multer();
 
@@ -23,6 +27,11 @@ function main() {
     app.post('/detect', upload.single('image_file'), async function (req, res) {
         const boxes = await detect_objects_on_image(req.file.buffer);
         res.json(boxes);
+    });
+
+    app.get('/load_model', async function (req, res) {
+        await load_model();
+        res.json('{ status: "ok" }');
     });
 
     app.get('/info', (req, res) => {
@@ -63,8 +72,14 @@ async function prepare_input(buf) {
     return [input, img_width, img_height];
 }
 
+async function load_model() {
+    await sleep(5);
+    model = await ort.InferenceSession.create("yolov8m.onnx");
+    
+}
+
 async function run_model(input) {
-    const model = await ort.InferenceSession.create("yolov8m.onnx");
+    //const model = await ort.InferenceSession.create("yolov8m.onnx");
     input = new ort.Tensor(Float32Array.from(input), [1, 3, imgSize, imgSize]);
     const outputs = await model.run({ images: input });
     //console.log(outputs);
@@ -148,4 +163,4 @@ const yolo_classes = [
 const version = "v1.0";
 const approach = "1";
 
-main()
+main();

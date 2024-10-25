@@ -29,3 +29,17 @@ canvas {
 .info-col .tab-pane {
     padding-top: 1rem;
 }
+
+#dimmer {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(255,255,255,0.8);
+    z-index: 999999;
+}
+
+#dimmer .dimmer-ct {
+    height: 100%;
+}

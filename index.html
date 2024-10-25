@@ -24,8 +24,8 @@
             </div>
         </div>
         <div class="row">
- 
-            <div class="col-sm-9"> 
+
+            <div class="col-sm-9">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-sm-8">
@@ -35,13 +35,13 @@
                             <div class="image-ct">
                                 <input id="uploadInput" type="file" class="form-control mt4 mb-4" />
                                 <div id="predicted-image" class="mt-3 bg-light text-center">
-                                    
+
                                 </div>
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <h4 class="mt-4 mb-4">
-                               Predictions
+                                Predictions
                             </h4>
                             <div id="labels-ct">
 
@@ -49,14 +49,13 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
 
 
             <div class="col-sm-3 info-col">
                 <nav>
-                    <div class="nav nav-tabs" id="v-pills-tab" role="tablist"
-                        aria-orientation="vertical">
+                    <div class="nav nav-tabs" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <button class="nav-link active" id="v-pills-home-tab" data-bs-toggle="pill"
                             data-bs-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home"
                             aria-selected="true">Info</button>
@@ -115,7 +114,8 @@
                                     Code sources
                                 </li>
                                 <li>
-                                    <a class="nav-link" href="https://developer.ibm.com/tutorials/awb-train-yolo-object-detection-model-in-python/">
+                                    <a class="nav-link"
+                                        href="https://developer.ibm.com/tutorials/awb-train-yolo-object-detection-model-in-python/">
                                         https://developer.ibm.com/tutorials/awb-train-yolo-object-detection-model-in-python/
                                     </a>
                                 </li>
@@ -129,10 +129,13 @@
                         <div class="tab-pane fade" id="v-pills-messages" role="tabpanel"
                             aria-labelledby="v-pills-messages-tab">
                             <p>
-                                The neural network has been trained on the dataset of about 400 images of Brooks River bears. This resulted a <strong>YOLOv8 model</strong> file, which can be used to recognize bears.
+                                The neural network has been trained on the dataset of about 400 images of Brooks River
+                                bears. This resulted a <strong>YOLOv8 model</strong> file, which can be used to
+                                recognize bears.
                             </p>
                             <p>
-                                It has nothing to do with intelligence. It still can see a bear in a picture of a bread loaf.
+                                It has nothing to do with intelligence. It still can see a bear in a picture of a bread
+                                loaf.
                             </p>
                             <p>
                                 There's still much to do.
@@ -158,6 +161,19 @@
         </div>
     </div>
 
+    <div id="dimmer">
+        <div class="row align-items-center dimmer-ct">
+            <div class="col">
+                
+            </div>
+            <div class="col text-center">
+                Loading model. Please wait ...
+            </div>
+            <div class="col">
+                
+            </div>
+        </div>
+    </div>
     <!--
     <footer class="container-fluid fixed-bottom">
         <p>2024 by <a href="https://github.com/picios">picios on <i class="bi bi-github"></i> Github</a></p>
@@ -218,6 +234,13 @@
 
             document.getElementById("model-version").innerHTML = info.version;
             document.getElementById("approach").innerHTML = info.approach;
+
+            // load model and remove dimmer
+            const load_model_rsp = await fetch("/load_model", {
+                method: "get"
+            });
+            const status = await load_model_rsp.json();
+            document.getElementById("dimmer").remove();
         });
 
         /**
@@ -228,7 +251,7 @@
          * @param boxes Array of bounding boxes in format [[x1,y1,x2,y2,object_type,probability],...]
          */
         function draw_image_and_boxes(file, boxes) {
-            
+
             const img = new Image()
             img.src = URL.createObjectURL(file);
             const predictedImageBox = document.getElementById('predicted-image');
@@ -243,7 +266,7 @@
                 //ctx.font = "18px serif";
                 boxes.forEach(([x1, y1, x2, y2, label, accu]) => {
                     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-                    adPrediction(img, {x1: x1, y1: y1, x2: x2, y2: y2}, label, accu);
+                    adPrediction(img, { x1: x1, y1: y1, x2: x2, y2: y2 }, label, accu);
                 });
                 let predictedImage = document.createElement("img");
                 predictedImage.setAttribute('src', canvas.toDataURL('image/jpeg'));
@@ -273,7 +296,7 @@
             let labelBox = document.createElement('div');
             labelBox.className = 'label-x';
             labelBox.innerHTML = '<span class="text-muted text-uppercase fw-lighter label">Bear ID:</span> <span class="fw-bold value">' + label + '</span>';
-            
+
             let accuBox = document.createElement('div');
             accuBox.className = 'accu';
             accuBox.innerHTML = '<span class="text-muted text-uppercase fw-lighter label">Accuracy:</span> <span class="fw-bold value">' + accu.toFixed(2) + '</span>';
@@ -281,7 +304,7 @@
             prediction.appendChild(image);
             prediction.appendChild(labelBox);
             prediction.appendChild(accuBox);
-            
+
             labelsCt.appendChild(prediction);
         }
 
@@ -293,7 +316,7 @@
             predictedImageBox.appendChild(image);
 
             const labelsCt = document.getElementById("labels-ct");
-            
+
             let labelBox = document.createElement('div');
             labelBox.className = 'label no-prediction';
             labelBox.innerHTML = 'No prediction found. Sorry';

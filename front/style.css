@@ -8,11 +8,6 @@ canvas {
     width: 200px;
 }
 
-#labels-ct .prediction img {
-    max-width: 100px;
-    max-height: 100px;
-}
-
 #predicted-image img {
     max-width: 100%;
 }
@@ -21,9 +16,18 @@ canvas {
     min-height: 200px;
 }
 
-#labels-ct .label-x .label,
-#labels-ct .accu .label {
+#labels-ct .weight-x .label,
+#labels-ct .accu-x .label,
+#labels-ct .clss-x .label {
     font-size: smaller;
+}
+
+#labels-ct .prediction .row .image-box {
+    width: 100%;
+    height: 100%;
+    background-position: center 0.5rem;
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
 .info-col .tab-pane {
@@ -36,7 +40,7 @@ canvas {
     height: 100%;
     top: 0;
     left: 0;
-    background-color: rgba(255,255,255,0.8);
+    background-color: rgba(255, 255, 255, 0.8);
     z-index: 999999;
 }
 

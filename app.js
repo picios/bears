@@ -1,19 +1,23 @@
-const ort = require("onnxruntime-node");
-const express = require('express');
-const multer = require("multer");
-const sharp = require("sharp");
-const fs = require("fs");
-var path = require('path');
-const imgSize = 512;
-const outputMultiplier = 5376;
-var model = null;
+import express from "express";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
 
-const sleep = (time) => new Promise((resolve) => setTimeout(resolve, Math.ceil(time * 1000)))
+import { Configs } from "./lib/Configs.js";
+import { ModelKeeper } from "./lib/ModelUtils.js";
+import { DetectInputPrepperer, ClassifyImagePrepperer } from "./lib/ModelInput.js";
+import { OutputProcessor, OutputAnalizer } from "./lib/ModelOutput.js";
+
+// for testing only
+const sleep = (time) => new Promise((resolve) => setTimeout(resolve, Math.ceil(time * 1000)));
 
 function main() {
-
     const app = express();
     const upload = multer();
+
+    const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+    const __dirname = path.dirname(__filename); // get the name of the directory
 
     app.use(express.static(path.join(__dirname, 'public')));
     app.use("/front/bootstrap/css", express.static(path.join(__dirname, "node_modules/bootstrap/dist/css")));
@@ -30,15 +34,16 @@ function main() {
     });
 
     app.get('/load_model', async function (req, res) {
-        await load_model();
+        let modelKeeper = new ModelKeeper();
+        await modelKeeper.load();
         res.json('{ status: "ok" }');
     });
 
     app.get('/info', (req, res) => {
         const data = {
-            classes: yolo_classes,
-            version: version,
-            approach: approach,
+            classes: Configs.classifyAll.classes,
+            version: Configs.version,
+            approach: Configs.approach,
         };
         res.json(data);
     });
@@ -49,117 +54,60 @@ function main() {
 }
 
 async function detect_objects_on_image(buf) {
-    const [input, img_width, img_height] = await prepare_input(buf);
-    const output = await run_model(input);
-    return process_output(output, img_width, img_height);
-}
 
-async function prepare_input(buf) {
-    const img = sharp(buf);
-    const md = await img.metadata();
-    const [img_width, img_height] = [md.width, md.height];
-    const pixels = await img.removeAlpha()
-        .resize({ width: imgSize, height: imgSize, fit: 'fill' })
-        .raw()
-        .toBuffer();
-    const red = [], green = [], blue = [];
-    for (let index = 0; index < pixels.length; index += 3) {
-        red.push(pixels[index] / 255.0);
-        green.push(pixels[index + 1] / 255.0);
-        blue.push(pixels[index + 2] / 255.0);
+    const classifyImagePrepperer = new ClassifyImagePrepperer();
+
+    let outputs = await get_typed_detection(buf, 'detectAll', 'classifyAll');
+    for (let ouput of outputs) {
+        let allImg = await classifyImagePrepperer.get(buf, ouput.secondBox);
+        let detectHead = await get_typed_detection(allImg, 'detectHead', 'classifyHead');
+        //console.log('head', detectHead);
+        ouput.setHead(detectHead);
     }
-    const input = [...red, ...green, ...blue];
-    return [input, img_width, img_height];
-}
 
-async function load_model() {
-    //await sleep(5);
-    model = await ort.InferenceSession.create("yolov8m.onnx");
-}
-
-async function run_model(input) {
-    //const model = await ort.InferenceSession.create("yolov8m.onnx");
-    input = new ort.Tensor(Float32Array.from(input), [1, 3, imgSize, imgSize]);
-    const outputs = await model.run({ images: input });
     //console.log(outputs);
-    return outputs["output0"].data;
-}
 
-function process_output(output, img_width, img_height) {
-    let boxes = [];
-    for (let index = 0; index < outputMultiplier; index++) {
-        const [class_id, prob] = [...Array(80).keys()]
-            .map(col => [col, output[outputMultiplier * (col + 4) + index]])
-            .reduce((accum, item) => item[1] > accum[1] ? item : accum, [0, 0]);
-        if (prob < 0.3) {
-            continue;
-        }
-        const label = yolo_classes[class_id];
-        const xc = output[index];
-        const yc = output[outputMultiplier + index];
-        const w = output[2 * outputMultiplier + index];
-        const h = output[3 * outputMultiplier + index];
-        const x1 = (xc - w / 2) / imgSize * img_width;
-        const y1 = (yc - h / 2) / imgSize * img_height;
-        const x2 = (xc + w / 2) / imgSize * img_width;
-        const y2 = (yc + h / 2) / imgSize * img_height;
-        boxes.push([x1, y1, x2, y2, label, prob]);
+    const analizer = new OutputAnalizer(outputs);
+    const analized = analizer.getAnalized();
+    //console.log('outputs', outputs);
+    return analized;
+};
+
+async function get_typed_detection(buf, typeName, clsName) {
+    const inputPrepperer = new DetectInputPrepperer();
+    const outputProcessor = new OutputProcessor();
+    const modelKepper = new ModelKeeper();
+
+    let inputResult = await inputPrepperer.get(buf, typeName);
+    let modelRun = await modelKepper.run(inputResult, typeName);
+    let output = outputProcessor.proccessDetection(
+        modelRun, 
+        inputResult.getImageWidth(), 
+        inputResult.getImageHeight(),
+        typeName
+    );
+
+    const classifyImagePrepperer = new ClassifyImagePrepperer();
+
+    for (let detecttion of output) {
+        //console.log(detectHead);
+        let headImg = await classifyImagePrepperer.get(buf, detecttion.box);
+        let inputResult = await inputPrepperer.get(headImg, clsName);
+        let modelClassyficationResult = await modelKepper.run(inputResult, clsName);
+        let classyficationOutput = outputProcessor.processClassyfication(modelClassyficationResult, clsName)
+        detecttion.addClassification(clsName, classyficationOutput);
     }
-    //console.log(boxes);
-    boxes = boxes.sort((box1, box2) => box2[5] - box1[5])
-    const result = [];
-    const labelsFound = [];
-    while (boxes.length > 0) {
-        let label = boxes[0][4];
-        if (!labelsFound.includes(label)) {
-            result.push(boxes[0]);
-            labelsFound.push(label);
-        }
-        boxes = boxes.filter(box => iou(boxes[0], box) < 0.7);
+
+    for (let detecttion of output) {
+        let wider = await classifyImagePrepperer.getWider(buf, detecttion.box);
+        let inputResult = await inputPrepperer.get(wider.image, clsName);
+        let modelClassyficationResult = await modelKepper.run(inputResult, clsName);
+        //outputs['classifyHeadOnlyWider'].push(outputProcessor.processClassyfication(modelDetectionResults['classifyHead'], 'classifyHead'));
+        let classyficationOutput = outputProcessor.processClassyfication(modelClassyficationResult, clsName);
+        detecttion.addClassification(clsName + 'Wider', classyficationOutput);
+        detecttion.setSecondBox(wider.box);
     }
-    return result;
+    return output;
 }
-
-function iou(box1, box2) {
-    return intersection(box1, box2) / union(box1, box2);
-}
-
-function union(box1, box2) {
-    const [box1_x1, box1_y1, box1_x2, box1_y2] = box1;
-    const [box2_x1, box2_y1, box2_x2, box2_y2] = box2;
-    const box1_area = (box1_x2 - box1_x1) * (box1_y2 - box1_y1)
-    const box2_area = (box2_x2 - box2_x1) * (box2_y2 - box2_y1)
-    return box1_area + box2_area - intersection(box1, box2)
-}
-
-function intersection(box1, box2) {
-    const [box1_x1, box1_y1, box1_x2, box1_y2] = box1;
-    const [box2_x1, box2_y1, box2_x2, box2_y2] = box2;
-    const x1 = Math.max(box1_x1, box2_x1);
-    const y1 = Math.max(box1_y1, box2_y1);
-    const x2 = Math.min(box1_x2, box2_x2);
-    const y2 = Math.min(box1_y2, box2_y2);
-    return (x2 - x1) * (y2 - y1)
-}
-
-const yolo_classes = [
-    '128',
-    '151',
-    '164',
-    '164shower',
-    '307',
-    '32',
-    '747',
-    '856',
-    '903',
-    '907',
-    '909',
-    '909j',
-    '910',
-    '910j',
-];
-
-const version = "v1.0";
-const approach = "1";
 
 main();
